@@ -42,7 +42,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body style={{ background: "#f2f2f7" }}>
         <BranchProvider branches={branches ?? []}>
           <Sidebar branches={branches ?? []} />
-          <main className="ml-60 min-h-screen px-12 py-10">
+          <main className="md:ml-60 min-h-screen px-4 py-6 md:px-12 md:py-10 pt-16 md:pt-10">
             {children}
           </main>
         </BranchProvider>

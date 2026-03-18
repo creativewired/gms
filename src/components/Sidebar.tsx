@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import BranchSwitcher from "./BranchSwitcher";
 
 type Branch = {
@@ -41,64 +42,29 @@ const links = [
     icon: (<svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg>),
   },
   {
-  href: "/timeclock",
-  label: "Time Clock",
-  icon: (
-    <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 6 12 12 16 14" />
-    </svg>
-  ),
-},
-{
-  href: "/kanban",
-  label: "Job Board",
-  icon: (
-    <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
-      <rect x="3" y="3" width="18" height="18" rx="3" />
-      <line x1="3" y1="9" x2="21" y2="9" />
-      <line x1="9" y1="21" x2="9" y2="9" />
-    </svg>
-  ),
-},
-
-{
-  href: "/ai-insights",
-  label: "AI Insights",
-  icon: (
-    <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
-      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-    </svg>
-  ),
-},
-
+    href: "/timeclock", label: "Time Clock",
+    icon: (<svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>),
+  },
+  {
+    href: "/kanban", label: "Job Board",
+    icon: (<svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3" /><line x1="3" y1="9" x2="21" y2="9" /><line x1="9" y1="21" x2="9" y2="9" /></svg>),
+  },
+  {
+    href: "/ai-insights", label: "AI Insights",
+    icon: (<svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" /></svg>),
+  },
   {
     href: "/mechanics", label: "Mechanics",
     icon: (<svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>),
   },
   {
-  href: "/staff",
-  label: "Staff",
-  icon: (
-    <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
-      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
-    </svg>
-  ),
-},
-{
-  href: "/fleet",
-  label: "Fleet",
-  icon: (
-    <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24">
-      <path d="M5 17H3a2 2 0 01-2-2V9a2 2 0 012-2h1l2-4h10l2 4h1a2 2 0 012 2v6a2 2 0 01-2 2h-2" />
-      <circle cx="7.5" cy="17.5" r="2.5" /><circle cx="16.5" cy="17.5" r="2.5" />
-    </svg>
-  ),
-},
-
-
+    href: "/staff", label: "Staff",
+    icon: (<svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" /></svg>),
+  },
+  {
+    href: "/fleet", label: "Fleet",
+    icon: (<svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24"><path d="M5 17H3a2 2 0 01-2-2V9a2 2 0 012-2h1l2-4h10l2 4h1a2 2 0 012 2v6a2 2 0 01-2 2h-2" /><circle cx="7.5" cy="17.5" r="2.5" /><circle cx="16.5" cy="17.5" r="2.5" /></svg>),
+  },
   {
     href: "/inventory", label: "Inventory",
     icon: (<svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>),
@@ -116,23 +82,23 @@ const links = [
 const groups = [
   { label: "Main", items: links.slice(0, 4) },
   { label: "Workshop", items: links.slice(4, 7) },
-  { label: "Team & Stock", items: links.slice(7, 9) },
-  { label: "System", items: links.slice(9) },
+  { label: "Team & Stock", items: links.slice(7, 10) },
+  { label: "System", items: links.slice(10) },
 ];
+
+const sidebarStyle = {
+  background: "rgba(28,28,30,0.97)",
+  backdropFilter: "saturate(180%) blur(20px)",
+  WebkitBackdropFilter: "saturate(180%) blur(20px)",
+  borderRight: "1px solid rgba(255,255,255,0.06)",
+};
 
 export default function Sidebar({ branches }: { branches: Branch[] }) {
   const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
 
-  return (
-    <aside
-      className="fixed top-0 left-0 h-screen w-60 flex flex-col z-50"
-      style={{
-        background: "rgba(28,28,30,0.97)",
-        backdropFilter: "saturate(180%) blur(20px)",
-        WebkitBackdropFilter: "saturate(180%) blur(20px)",
-        borderRight: "1px solid rgba(255,255,255,0.06)",
-      }}
-    >
+  const SidebarContent = () => (
+    <>
       {/* Logo */}
       <div className="px-5 pt-6 pb-4">
         <div className="flex items-center gap-2.5 mb-4">
@@ -147,8 +113,6 @@ export default function Sidebar({ branches }: { branches: Branch[] }) {
             <p style={{ color: "rgba(255,255,255,0.25)", fontSize: "0.62rem" }}>Garage Management</p>
           </div>
         </div>
-
-        {/* Branch Switcher */}
         <BranchSwitcher branches={branches} />
       </div>
 
@@ -173,6 +137,7 @@ export default function Sidebar({ branches }: { branches: Branch[] }) {
                 <Link
                   key={link.href}
                   href={link.href}
+                  onClick={() => setIsOpen(false)}
                   className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all mb-0.5"
                   style={{
                     color: isActive ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.38)",
@@ -219,6 +184,54 @@ export default function Sidebar({ branches }: { branches: Branch[] }) {
           </div>
         </div>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex fixed top-0 left-0 h-screen w-60 flex-col z-50" style={sidebarStyle}>
+        <SidebarContent />
+      </aside>
+
+      {/* Mobile Top Bar */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3"
+        style={sidebarStyle}>
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-lg flex items-center justify-center"
+            style={{ background: "rgba(124,58,237,0.25)" }}>
+            <svg className="w-3.5 h-3.5" fill="none" stroke="#a78bfa" strokeWidth={2} viewBox="0 0 24 24">
+              <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" />
+            </svg>
+          </div>
+          <p className="text-white font-semibold text-sm">WorkshopOS</p>
+        </div>
+        <button onClick={() => setIsOpen(!isOpen)}
+          className="p-2 rounded-lg"
+          style={{ background: "rgba(255,255,255,0.06)" }}>
+          {isOpen ? (
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          ) : (
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          )}
+        </button>
+      </div>
+
+      {/* Mobile Drawer */}
+      {isOpen && (
+        <div className="md:hidden fixed inset-0 z-40" onClick={() => setIsOpen(false)}>
+          <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.5)" }} />
+          <aside className="absolute top-0 left-0 h-full w-72 flex flex-col z-50"
+            style={sidebarStyle}
+            onClick={(e) => e.stopPropagation()}>
+            <SidebarContent />
+          </aside>
+        </div>
+      )}
+    </>
   );
 }

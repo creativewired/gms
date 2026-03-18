@@ -1,4 +1,0 @@
-#Wed Mar 18 11:54:47 GST 2026
-base.0=/Users/swarajns/garage-management-system/app/build/intermediates/dex/release/minifyReleaseWithR8/classes.dex
-renamed.0=classes.dex
-path.0=classes.dex

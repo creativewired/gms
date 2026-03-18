@@ -45,7 +45,7 @@ export default function DashboardClient({
   };
 
   return (
-    <div className="space-y-6 max-w-7xl">
+    <div className="space-y-5 max-w-7xl">
 
       {/* Page header */}
       <div>
@@ -54,7 +54,7 @@ export default function DashboardClient({
       </div>
 
       {/* ── KPI Row ─────────────────────────────────────────── */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           {
             label: "This Month Revenue",
@@ -94,9 +94,9 @@ export default function DashboardClient({
           <Link key={kpi.label} href={kpi.href}
             className="stat-card block transition-all hover:shadow-md"
             style={{ borderTop: `3px solid ${kpi.border}` }}>
-            <p className="label">{kpi.label}</p>
+            <p className="label text-xs">{kpi.label}</p>
             <p style={{
-              fontSize: "1.6rem", fontWeight: 700,
+              fontSize: "1.3rem", fontWeight: 700,
               color: kpi.color, letterSpacing: "-0.02em",
               lineHeight: 1.1, marginTop: "0.3rem",
             }}>
@@ -120,11 +120,11 @@ export default function DashboardClient({
       </div>
 
       {/* ── Row 2: Revenue Chart + Status Breakdown ──────── */}
-      <div className="grid grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
         {/* Revenue Bar Chart */}
-        <div className="col-span-2 card p-6">
-          <div className="flex items-center justify-between mb-6">
+        <div className="md:col-span-2 card p-5">
+          <div className="flex items-center justify-between mb-5">
             <div>
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Revenue Trend</p>
               <p className="text-base font-bold text-slate-800 mt-0.5">Last 6 Months</p>
@@ -133,9 +133,7 @@ export default function DashboardClient({
               Full Report →
             </Link>
           </div>
-
-          {/* Bars */}
-          <div className="flex items-end gap-3 h-40">
+          <div className="flex items-end gap-2 h-32">
             {monthlyData.map((m, i) => {
               const height = maxRevenue > 0 ? Math.max((m.revenue / maxRevenue) * 100, 2) : 2;
               const isLast = i === monthlyData.length - 1;
@@ -152,7 +150,6 @@ export default function DashboardClient({
                         : "linear-gradient(180deg, #e2e8f0, #f1f5f9)",
                       minHeight: "6px",
                     }}>
-                    {/* Tooltip */}
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
                       <div className="bg-slate-800 text-white rounded-xl px-3 py-2 text-xs whitespace-nowrap shadow-lg">
                         <p className="font-bold">AED {m.revenue.toLocaleString()}</p>
@@ -168,18 +165,15 @@ export default function DashboardClient({
         </div>
 
         {/* Status Breakdown */}
-        <div className="card p-6">
+        <div className="card p-5">
           <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Job Status</p>
-          <p className="text-base font-bold text-slate-800 mb-5">Breakdown</p>
-
-          {/* Stacked bar */}
-          <div className="flex rounded-xl overflow-hidden h-3 mb-5 gap-0.5">
+          <p className="text-base font-bold text-slate-800 mb-4">Breakdown</p>
+          <div className="flex rounded-xl overflow-hidden h-3 mb-4 gap-0.5">
             {statusData.filter(s => s.value > 0).map(s => (
               <div key={s.label}
                 style={{ width: `${(s.value / totalStatusJobs) * 100}%`, background: s.color }} />
             ))}
           </div>
-
           <div className="space-y-3">
             {statusData.map(s => (
               <div key={s.label} className="flex items-center justify-between">
@@ -196,8 +190,7 @@ export default function DashboardClient({
               </div>
             ))}
           </div>
-
-          <div className="mt-5 pt-4" style={{ borderTop: "1px solid rgba(0,0,0,0.05)" }}>
+          <div className="mt-4 pt-4" style={{ borderTop: "1px solid rgba(0,0,0,0.05)" }}>
             <div className="flex justify-between">
               <p className="text-xs text-slate-400">Total Jobs</p>
               <p className="text-sm font-bold text-slate-800">{stats.totalJobs}</p>
@@ -207,33 +200,47 @@ export default function DashboardClient({
       </div>
 
       {/* ── Row 3: Recent Jobs + Sidebar ──────────────────── */}
-      <div className="grid grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
         {/* Recent Jobs */}
-        <div className="col-span-2 card overflow-hidden">
-          <div className="px-6 py-4 flex items-center justify-between"
+        <div className="md:col-span-2 card overflow-hidden">
+          <div className="px-5 py-4 flex items-center justify-between"
             style={{ borderBottom: "1px solid rgba(0,0,0,0.05)", background: "#fafafa" }}>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Recent Jobs</p>
             <Link href="/jobs" className="text-xs text-slate-400 hover:text-slate-700 transition-colors">
               View All →
             </Link>
           </div>
-          <table className="min-w-full">
+          {/* Mobile card list */}
+          <div className="md:hidden divide-y divide-slate-100">
+            {recentJobs.map(j => (
+              <Link key={j.id} href={`/jobs/${j.id}`} className="flex items-center justify-between px-4 py-3 hover:bg-slate-50">
+                <div>
+                  <p className="text-sm font-semibold text-slate-800">{j.vehicles?.plate_number ?? "—"}</p>
+                  <p className="text-xs text-slate-400">{j.vehicles?.make} {j.vehicles?.model}</p>
+                  <div className="mt-1">{statusBadge(j.status)}</div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-bold text-slate-800">AED {Number(j.total_amount).toLocaleString("en-AE", { minimumFractionDigits: 0 })}</p>
+                  <p className="text-xs text-slate-400">{new Date(j.created_at).toLocaleDateString("en-AE", { month: "short", day: "numeric" })}</p>
+                </div>
+              </Link>
+            ))}
+            {recentJobs.length === 0 && (
+              <p className="text-center py-8 text-slate-300 text-sm">No jobs yet.</p>
+            )}
+          </div>
+          {/* Desktop table */}
+          <table className="hidden md:table min-w-full">
             <tbody>
               {recentJobs.map(j => (
                 <tr key={j.id} className="hover:bg-slate-50/60 transition-colors">
                   <td className="table-cell">
-                    <span className="font-mono text-xs text-slate-400">
-                      #{String(j.id).padStart(4, "0")}
-                    </span>
+                    <span className="font-mono text-xs text-slate-400">#{String(j.id).padStart(4, "0")}</span>
                   </td>
                   <td className="table-cell">
-                    <p className="text-sm font-semibold text-slate-800">
-                      {j.vehicles?.plate_number ?? "—"}
-                    </p>
-                    <p className="text-xs text-slate-400">
-                      {j.vehicles?.make} {j.vehicles?.model}
-                    </p>
+                    <p className="text-sm font-semibold text-slate-800">{j.vehicles?.plate_number ?? "—"}</p>
+                    <p className="text-xs text-slate-400">{j.vehicles?.make} {j.vehicles?.model}</p>
                   </td>
                   <td className="table-cell">{statusBadge(j.status)}</td>
                   <td className="table-cell text-sm font-bold text-slate-800">
@@ -243,18 +250,13 @@ export default function DashboardClient({
                     {new Date(j.created_at).toLocaleDateString("en-AE", { month: "short", day: "numeric" })}
                   </td>
                   <td className="table-cell">
-                    <Link href={`/jobs/${j.id}`}
-                      className="text-xs text-slate-400 hover:text-slate-900 transition-colors">
-                      →
-                    </Link>
+                    <Link href={`/jobs/${j.id}`} className="text-xs text-slate-400 hover:text-slate-900 transition-colors">→</Link>
                   </td>
                 </tr>
               ))}
               {recentJobs.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="table-cell text-center py-10 text-slate-300 text-sm">
-                    No jobs yet.
-                  </td>
+                  <td colSpan={6} className="table-cell text-center py-10 text-slate-300 text-sm">No jobs yet.</td>
                 </tr>
               )}
             </tbody>
@@ -268,18 +270,15 @@ export default function DashboardClient({
           <div className="card p-5">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-semibold text-slate-800">Upcoming</p>
-              <Link href="/appointments"
-                className="text-xs text-slate-400 hover:text-slate-700 transition-colors">
+              <Link href="/appointments" className="text-xs text-slate-400 hover:text-slate-700 transition-colors">
                 View All →
               </Link>
             </div>
             {upcomingAppointments.length > 0 ? (
               <div className="space-y-2">
                 {upcomingAppointments.map(a => (
-                  <div key={a.id} className="flex items-start gap-3 p-2.5 rounded-xl"
-                    style={{ background: "#f8fafc" }}>
-                    <div className="w-8 h-8 rounded-xl flex flex-col items-center justify-center shrink-0"
-                      style={{ background: "#eff6ff" }}>
+                  <div key={a.id} className="flex items-start gap-3 p-2.5 rounded-xl" style={{ background: "#f8fafc" }}>
+                    <div className="w-8 h-8 rounded-xl flex flex-col items-center justify-center shrink-0" style={{ background: "#eff6ff" }}>
                       <p className="text-xs font-bold text-blue-600 leading-none">
                         {new Date(a.appointment_date + "T00:00:00").getDate()}
                       </p>
@@ -301,29 +300,22 @@ export default function DashboardClient({
 
           {/* Low Stock Alerts */}
           {lowStockItems.length > 0 && (
-            <div className="card p-5"
-              style={{ border: "1px solid #fecaca" }}>
+            <div className="card p-5" style={{ border: "1px solid #fecaca" }}>
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-5 h-5 rounded-lg flex items-center justify-center"
-                  style={{ background: "#fff1f0" }}>
+                <div className="w-5 h-5 rounded-lg flex items-center justify-center" style={{ background: "#fff1f0" }}>
                   <svg className="w-3 h-3 text-red-400" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                     <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                     <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
                   </svg>
                 </div>
                 <p className="text-sm font-semibold text-red-600">Low Stock</p>
-                <Link href="/inventory"
-                  className="ml-auto text-xs text-slate-400 hover:text-slate-700 transition-colors">
-                  View →
-                </Link>
+                <Link href="/inventory" className="ml-auto text-xs text-slate-400 hover:text-slate-700 transition-colors">View →</Link>
               </div>
               <div className="space-y-2">
                 {lowStockItems.map(item => (
                   <div key={item.id} className="flex items-center justify-between">
                     <p className="text-xs text-slate-600 truncate max-w-[65%]">{item.part_name}</p>
-                    <span className="text-xs font-bold text-red-500">
-                      {item.quantity} left
-                    </span>
+                    <span className="text-xs font-bold text-red-500">{item.quantity} left</span>
                   </div>
                 ))}
               </div>
@@ -368,17 +360,17 @@ export default function DashboardClient({
       </div>
 
       {/* ── Quick Actions ─────────────────────────────────── */}
-      <div className="grid grid-cols-5 gap-3">
+      <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
         {[
-          { label: "New Job",        href: "/jobs",         icon: "🔧", color: "#1d4ed8", bg: "#eff6ff" },
-          { label: "Add Customer",   href: "/customers",    icon: "👤", color: "#7c3aed", bg: "#f5f3ff" },
-          { label: "Job Board",      href: "/kanban",       icon: "📋", color: "#b45309", bg: "#fffbeb" },
-          { label: "AI Insights",    href: "/ai-insights",  icon: "🤖", color: "#0891b2", bg: "#ecfeff" },
-          { label: "Inventory",      href: "/inventory",    icon: "📦", color: "#15803d", bg: "#f0fdf4" },
+          { label: "New Job",      href: "/jobs",        icon: "🔧", color: "#1d4ed8", bg: "#eff6ff" },
+          { label: "Add Customer", href: "/customers",   icon: "👤", color: "#7c3aed", bg: "#f5f3ff" },
+          { label: "Job Board",    href: "/kanban",      icon: "📋", color: "#b45309", bg: "#fffbeb" },
+          { label: "AI Insights",  href: "/ai-insights", icon: "🤖", color: "#0891b2", bg: "#ecfeff" },
+          { label: "Inventory",    href: "/inventory",   icon: "📦", color: "#15803d", bg: "#f0fdf4" },
         ].map(a => (
           <Link key={a.label} href={a.href}
-            className="card p-4 flex flex-col items-center gap-2 text-center transition-all hover:shadow-md">
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-xl"
+            className="card p-3 md:p-4 flex flex-col items-center gap-2 text-center transition-all hover:shadow-md">
+            <div className="w-9 h-9 md:w-10 md:h-10 rounded-2xl flex items-center justify-center text-lg md:text-xl"
               style={{ background: a.bg }}>
               {a.icon}
             </div>
