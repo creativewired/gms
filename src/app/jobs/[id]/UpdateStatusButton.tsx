@@ -24,22 +24,14 @@ export default function UpdateStatusButton({
 
   return (
     <div className="flex items-center gap-2">
-      <select
-        value={status}
-        onChange={(e) => setStatus(e.target.value)}
-        className="input"
-        style={{ width: "auto", minWidth: "140px" }}
-      >
+      <select value={status} onChange={e => setStatus(e.target.value)}
+        className="input text-sm" style={{ minWidth: "120px" }}>
         <option value="pending">Pending</option>
         <option value="in_progress">In Progress</option>
         <option value="completed">Completed</option>
       </select>
-      <button
-        onClick={handleUpdate}
-        disabled={loading}
-        className="btn-primary"
-      >
-        {loading ? "Saving..." : "Update"}
+      <button onClick={handleUpdate} disabled={loading} className="btn-primary text-sm">
+        {loading ? "..." : "Update"}
       </button>
     </div>
   );

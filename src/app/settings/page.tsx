@@ -8,11 +8,12 @@ export default async function SettingsPage() {
     .single();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-bold text-slate-800">Garage Settings</h1>
-        <p className="text-slate-500 text-sm mt-1">
-          Your garage info appears on every invoice.
+        <p className="section-title">Configuration</p>
+        <h1 className="page-title">Settings</h1>
+        <p className="text-slate-400 text-sm mt-1">
+          Your garage info appears on every invoice and document.
         </p>
       </div>
       <SettingsForm settings={settings} />

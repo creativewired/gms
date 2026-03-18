@@ -20,58 +20,37 @@ export default async function AppointmentsPage({
 
   const { data: appointments } = await apptQuery;
 
-  const { data: customers } = await supabase
-    .from("customers")
-    .select("id, name")
-    .order("name");
-
-  const { data: vehicles } = await supabase
-    .from("vehicles")
-    .select("id, plate_number, make, model, customer_id")
-    .order("plate_number");
-
-  const { data: mechanics } = await supabase
-    .from("mechanics")
-    .select("id, name")
-    .order("name");
+  const [{ data: customers }, { data: vehicles }, { data: mechanics }] = await Promise.all([
+    supabase.from("customers").select("id, name").order("name"),
+    supabase.from("vehicles").select("id, plate_number, make, model, customer_id").order("plate_number"),
+    supabase.from("mechanics").select("id, name").order("name"),
+  ]);
 
   const today = new Date().toISOString().split("T")[0];
-  const upcoming = (appointments ?? []).filter(
-    (a) => a.appointment_date >= today && a.status !== "cancelled"
-  ).length;
-  const todayCount = (appointments ?? []).filter(
-    (a) => a.appointment_date === today
-  ).length;
-  const totalCount = (appointments ?? []).length;
+  const upcoming    = (appointments ?? []).filter(a => a.appointment_date >= today && a.status !== "cancelled").length;
+  const todayCount  = (appointments ?? []).filter(a => a.appointment_date === today).length;
+  const totalCount  = (appointments ?? []).length;
 
   return (
-    <div className="space-y-8 max-w-6xl">
+    <div className="space-y-6 max-w-6xl">
       <div className="page-header">
         <div>
           <p className="section-title">Scheduling</p>
           <h1 className="page-title">Appointments</h1>
         </div>
-        <AddAppointmentForm
-          customers={customers ?? []}
-          vehicles={vehicles ?? []}
-          mechanics={mechanics ?? []}
-        />
+        <AddAppointmentForm customers={customers ?? []} vehicles={vehicles ?? []} mechanics={mechanics ?? []} />
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-3">
         {[
-          { label: "Total Appointments", value: totalCount, color: "#7c3aed", border: "#ddd6fe" },
-          { label: "Today", value: todayCount, color: "#1d4ed8", border: "#bfdbfe" },
-          { label: "Upcoming", value: upcoming, color: "#15803d", border: "#bbf7d0" },
-        ].map((s) => (
+          { label: "Total",    value: totalCount,  color: "#7c3aed", border: "#ddd6fe" },
+          { label: "Today",    value: todayCount,  color: "#1d4ed8", border: "#bfdbfe" },
+          { label: "Upcoming", value: upcoming,    color: "#15803d", border: "#bbf7d0" },
+        ].map(s => (
           <div key={s.label} className="stat-card" style={{ borderTop: `3px solid ${s.border}` }}>
-            <p className="label">{s.label}</p>
-            <p style={{
-              fontSize: "1.75rem", fontWeight: 700,
-              color: s.color, letterSpacing: "-0.03em",
-              lineHeight: 1.1, marginTop: "0.375rem",
-            }}>
+            <p className="label text-xs">{s.label}</p>
+            <p style={{ fontSize: "1.6rem", fontWeight: 700, color: s.color, letterSpacing: "-0.03em", lineHeight: 1.1, marginTop: "0.3rem" }}>
               {s.value}
             </p>
           </div>

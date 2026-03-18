@@ -14,11 +14,10 @@ export default async function ReportsPage() {
     supabase.from("customers").select("id, created_at"),
   ]);
 
-  // --- Revenue by month (last 6 months) ---
   const monthlyRevenue: Record<string, number> = {};
   const monthlyJobs: Record<string, number> = {};
-
   const now = new Date();
+
   for (let i = 5; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const key = d.toLocaleDateString("en-AE", { month: "short", year: "2-digit" });
@@ -27,8 +26,7 @@ export default async function ReportsPage() {
   }
 
   (jobs ?? []).forEach((j) => {
-    const d = new Date(j.created_at);
-    const key = d.toLocaleDateString("en-AE", { month: "short", year: "2-digit" });
+    const key = new Date(j.created_at).toLocaleDateString("en-AE", { month: "short", year: "2-digit" });
     if (key in monthlyRevenue) {
       monthlyRevenue[key] += Number(j.total_amount);
       monthlyJobs[key] += 1;
@@ -36,12 +34,9 @@ export default async function ReportsPage() {
   });
 
   const revenueChartData = Object.entries(monthlyRevenue).map(([month, revenue]) => ({
-    month,
-    revenue: Math.round(revenue),
-    jobs: monthlyJobs[month],
+    month, revenue: Math.round(revenue), jobs: monthlyJobs[month],
   }));
 
-  // --- Job status breakdown ---
   const pending = (jobs ?? []).filter(j => j.status === "pending").length;
   const inProgress = (jobs ?? []).filter(j => j.status === "in_progress").length;
   const completed = (jobs ?? []).filter(j => j.status === "completed").length;
@@ -52,11 +47,9 @@ export default async function ReportsPage() {
     { name: "Pending", value: pending, color: "#f59e0b" },
   ];
 
-  // --- Top services by revenue ---
   const serviceRevenue: Record<string, number> = {};
   (jobItems ?? []).forEach((item) => {
-    const key = item.description;
-    serviceRevenue[key] = (serviceRevenue[key] ?? 0) + Number(item.line_total);
+    serviceRevenue[item.description] = (serviceRevenue[item.description] ?? 0) + Number(item.line_total);
   });
 
   const topServices = Object.entries(serviceRevenue)
@@ -64,7 +57,6 @@ export default async function ReportsPage() {
     .slice(0, 6)
     .map(([name, revenue]) => ({ name, revenue: Math.round(revenue) }));
 
-  // --- Summary stats ---
   const totalRevenue = (jobs ?? []).reduce((sum, j) => sum + Number(j.total_amount), 0);
   const avgJobValue = jobs?.length ? totalRevenue / jobs.length : 0;
   const thisMonthKey = now.toLocaleDateString("en-AE", { month: "short", year: "2-digit" });
@@ -76,7 +68,6 @@ export default async function ReportsPage() {
     ? Math.round(((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100)
     : 0;
 
-  // --- New customers by month ---
   const newCustomers: Record<string, number> = {};
   Object.keys(monthlyRevenue).forEach(k => newCustomers[k] = 0);
   (customers ?? []).forEach((c) => {
@@ -84,11 +75,8 @@ export default async function ReportsPage() {
     if (key in newCustomers) newCustomers[key] += 1;
   });
 
-  const customerChartData = Object.entries(newCustomers).map(([month, count]) => ({
-    month, count,
-  }));
+  const customerChartData = Object.entries(newCustomers).map(([month, count]) => ({ month, count }));
 
-  // --- Mechanic performance ---
   const mechanicRevenue: Record<string, { revenue: number; jobs: number }> = {};
   (jobs ?? []).forEach((j) => {
     if (j.mechanic_name) {
@@ -103,54 +91,40 @@ export default async function ReportsPage() {
     .map(([name, data]) => ({ name, revenue: Math.round(data.revenue), jobs: data.jobs }));
 
   return (
-    <div className="space-y-8 max-w-6xl">
-      {/* Header */}
+    <div className="space-y-6 max-w-6xl">
       <div>
         <p className="section-title">Analytics</p>
         <h1 className="page-title">Reports</h1>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           {
             label: "Total Revenue",
             value: `AED ${totalRevenue.toLocaleString("en-AE", { minimumFractionDigits: 0 })}`,
-            sub: "All time",
-            color: "#7c3aed",
-            bg: "#f5f3ff",
+            sub: "All time", color: "#7c3aed",
           },
           {
             label: "This Month",
             value: `AED ${thisMonthRevenue.toLocaleString("en-AE", { minimumFractionDigits: 0 })}`,
-            sub: revenueGrowth >= 0
-              ? `+${revenueGrowth}% vs last month`
-              : `${revenueGrowth}% vs last month`,
+            sub: revenueGrowth >= 0 ? `+${revenueGrowth}% vs last month` : `${revenueGrowth}% vs last month`,
             color: revenueGrowth >= 0 ? "#15803d" : "#dc2626",
-            bg: revenueGrowth >= 0 ? "#f0fdf4" : "#fff1f0",
           },
           {
             label: "Avg Job Value",
             value: `AED ${avgJobValue.toFixed(0)}`,
-            sub: `Across ${jobs?.length ?? 0} jobs`,
-            color: "#1d4ed8",
-            bg: "#eff6ff",
+            sub: `Across ${jobs?.length ?? 0} jobs`, color: "#1d4ed8",
           },
           {
             label: "Total Jobs",
             value: String(jobs?.length ?? 0),
-            sub: `${completed} completed`,
-            color: "#b45309",
-            bg: "#fffbeb",
+            sub: `${completed} completed`, color: "#b45309",
           },
         ].map((k) => (
           <div key={k.label} className="stat-card" style={{ borderTop: `3px solid ${k.color}` }}>
-            <p className="label">{k.label}</p>
-            <p style={{
-              fontSize: "1.5rem", fontWeight: 700,
-              color: "#1c1c1e", letterSpacing: "-0.02em",
-              lineHeight: 1.2, marginTop: "0.375rem",
-            }}>
+            <p className="label text-xs">{k.label}</p>
+            <p style={{ fontSize: "1.4rem", fontWeight: 700, color: "#1c1c1e", letterSpacing: "-0.02em", lineHeight: 1.2, marginTop: "0.375rem" }}>
               {k.value}
             </p>
             <p style={{ fontSize: "0.72rem", color: k.color, marginTop: "0.25rem", fontWeight: 500 }}>
@@ -161,30 +135,29 @@ export default async function ReportsPage() {
       </div>
 
       {/* Revenue Chart + Status Donut */}
-      <div className="grid grid-cols-3 gap-6">
-        <div className="col-span-2 card p-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="md:col-span-2 card p-5">
           <p className="text-sm font-semibold text-slate-800 mb-1">Revenue — Last 6 Months</p>
-          <p className="text-xs text-slate-400 mb-5">Monthly revenue in AED</p>
+          <p className="text-xs text-slate-400 mb-4">Monthly revenue in AED</p>
           <RevenueChart data={revenueChartData} />
         </div>
-        <div className="card p-6">
+        <div className="card p-5">
           <p className="text-sm font-semibold text-slate-800 mb-1">Job Status</p>
-          <p className="text-xs text-slate-400 mb-5">Breakdown of all jobs</p>
+          <p className="text-xs text-slate-400 mb-4">Breakdown of all jobs</p>
           <JobStatusChart data={statusData} />
         </div>
       </div>
 
       {/* Top Services + New Customers */}
-      <div className="grid grid-cols-2 gap-6">
-        <div className="card p-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="card p-5">
           <p className="text-sm font-semibold text-slate-800 mb-1">Top Services by Revenue</p>
-          <p className="text-xs text-slate-400 mb-5">Highest earning job types</p>
+          <p className="text-xs text-slate-400 mb-4">Highest earning job types</p>
           <TopServicesChart data={topServices} />
         </div>
-
-        <div className="card p-6">
+        <div className="card p-5">
           <p className="text-sm font-semibold text-slate-800 mb-1">New Customers</p>
-          <p className="text-xs text-slate-400 mb-5">Monthly customer acquisition</p>
+          <p className="text-xs text-slate-400 mb-4">Monthly customer acquisition</p>
           <RevenueChart
             data={customerChartData.map(d => ({ month: d.month, revenue: d.count, jobs: 0 }))}
             color="#8b5cf6"
@@ -194,12 +167,49 @@ export default async function ReportsPage() {
         </div>
       </div>
 
-      {/* Mechanic Performance Table */}
+      {/* Mechanic Performance */}
       {mechanicData.length > 0 && (
         <div>
           <p className="section-title">Mechanic Performance</p>
           <div className="card overflow-hidden">
-            <table className="min-w-full">
+
+            {/* Mobile list */}
+            <div className="md:hidden divide-y divide-slate-100">
+              {mechanicData.map((m, i) => {
+                const share = totalRevenue ? Math.round((m.revenue / totalRevenue) * 100) : 0;
+                return (
+                  <div key={m.name} className="px-4 py-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                          style={{ background: "#f2f2f7", color: "#3a3a3c" }}>
+                          {m.name.charAt(0)}
+                        </div>
+                        <span className="font-semibold text-slate-800 text-sm">{m.name}</span>
+                        {i === 0 && (
+                          <span className="px-2 py-0.5 rounded-full text-xs font-semibold"
+                            style={{ background: "#fffbeb", color: "#b45309", border: "1px solid #fde68a" }}>
+                            Top
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-sm font-bold text-slate-800">
+                        AED {m.revenue.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 ml-10">
+                      <div className="flex-1 h-1.5 rounded-full" style={{ background: "#f2f2f7" }}>
+                        <div className="h-1.5 rounded-full" style={{ width: `${share}%`, background: "#7c3aed" }} />
+                      </div>
+                      <span className="text-xs text-slate-400">{m.jobs} jobs · {share}%</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop table */}
+            <table className="hidden md:table min-w-full">
               <thead>
                 <tr>
                   <th className="table-header">Mechanic</th>

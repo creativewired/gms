@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.creativewired.gms.twa",
+        "sha256_cert_fingerprints": ["04:4A:59:C9:29:01:F8:44:D4:EF:FC:4E:3F:CE:93:45:D8:1C:21:E3:86:1E:C1:6A:5B:FA:0A:C7:67:6F:FD:63"]
+      }
+    }]

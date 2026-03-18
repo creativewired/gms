@@ -11,12 +11,7 @@ export default function AddEstimateForm() {
   const [customers, setCustomers] = useState<{ id: number; name: string }[]>([]);
   const [vehicles, setVehicles] = useState<{ id: number; plate_number: string; make: string; model: string; customer_id: number }[]>([]);
   const [filteredVehicles, setFilteredVehicles] = useState<typeof vehicles>([]);
-  const [form, setForm] = useState({
-    customer_id: "",
-    vehicle_id: "",
-    notes: "",
-    valid_until: "",
-  });
+  const [form, setForm] = useState({ customer_id: "", vehicle_id: "", notes: "", valid_until: "" });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,15 +25,13 @@ export default function AddEstimateForm() {
     fetchData();
   }, []);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-
     if (name === "customer_id") {
-      setFilteredVehicles(vehicles.filter((v) => v.customer_id === Number(value)));
-      setForm((prev) => ({ ...prev, customer_id: value, vehicle_id: "" }));
+      setFilteredVehicles(vehicles.filter(v => v.customer_id === Number(value)));
+      setForm(prev => ({ ...prev, customer_id: value, vehicle_id: "" }));
+    } else {
+      setForm(prev => ({ ...prev, [name]: value }));
     }
   };
 
@@ -68,58 +61,63 @@ export default function AddEstimateForm() {
 
   if (!open) {
     return (
-      <button onClick={() => setOpen(true)} className="btn-primary">
-        + New Estimate
-      </button>
+      <button onClick={() => setOpen(true)} className="btn-primary">+ New Estimate</button>
     );
   }
 
   return (
-    <div className="card p-7">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-base font-semibold text-slate-800">New Estimate</h3>
-        <button onClick={() => setOpen(false)} className="btn-ghost text-xs">Cancel</button>
+    // Bottom sheet on mobile, inline card expands naturally
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+      style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(6px)" }}>
+      <div className="bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl shadow-2xl p-6">
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-base font-semibold text-slate-800">New Estimate</h3>
+          <button onClick={() => setOpen(false)} className="btn-ghost text-xs">Cancel</button>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="label">Customer <span className="text-red-400">*</span></label>
+              <select name="customer_id" value={form.customer_id} onChange={handleChange} className="input">
+                <option value="">Select customer...</option>
+                {customers.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="label">Vehicle <span className="text-red-400">*</span></label>
+              <select name="vehicle_id" value={form.vehicle_id} onChange={handleChange} className="input"
+                disabled={!form.customer_id}>
+                <option value="">Select vehicle...</option>
+                {filteredVehicles.map(v => (
+                  <option key={v.id} value={v.id}>
+                    {v.plate_number} — {v.make} {v.model}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="label">Valid Until</label>
+              <input type="date" name="valid_until" value={form.valid_until}
+                onChange={handleChange} className="input" />
+            </div>
+            <div>
+              <label className="label">Notes</label>
+              <input type="text" name="notes" value={form.notes}
+                onChange={handleChange} placeholder="Optional notes..." className="input" />
+            </div>
+          </div>
+          <div className="flex gap-3 pt-1">
+            <button type="submit" disabled={loading} className="btn-primary flex-1 justify-center">
+              {loading ? "Creating..." : "Create Estimate"}
+            </button>
+            <button type="button" onClick={() => setOpen(false)} className="btn-ghost flex-1">
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="label">Customer <span className="text-red-400">*</span></label>
-            <select name="customer_id" value={form.customer_id} onChange={handleChange} className="input">
-              <option value="">Select customer...</option>
-              {customers.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="label">Vehicle <span className="text-red-400">*</span></label>
-            <select name="vehicle_id" value={form.vehicle_id} onChange={handleChange} className="input"
-              disabled={!form.customer_id}>
-              <option value="">Select vehicle...</option>
-              {filteredVehicles.map((v) => (
-                <option key={v.id} value={v.id}>
-                  {v.plate_number} — {v.make} {v.model}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="label">Valid Until</label>
-            <input type="date" name="valid_until" value={form.valid_until}
-              onChange={handleChange} className="input" />
-          </div>
-          <div>
-            <label className="label">Notes</label>
-            <input type="text" name="notes" value={form.notes}
-              onChange={handleChange} placeholder="Optional notes..." className="input" />
-          </div>
-        </div>
-        <div className="pt-2">
-          <button type="submit" disabled={loading} className="btn-primary">
-            {loading ? "Creating..." : "Create Estimate"}
-          </button>
-        </div>
-      </form>
     </div>
   );
 }

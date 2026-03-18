@@ -13,7 +13,6 @@ export default async function StaffPage() {
     .eq("is_active", true)
     .order("name");
 
-  // Per-staff job stats
   const { data: jobs } = await supabase
     .from("jobs")
     .select("mechanic_name, status, total_amount");
@@ -30,7 +29,7 @@ export default async function StaffPage() {
   });
 
   return (
-    <div className="space-y-8 max-w-6xl">
+    <div className="space-y-6 max-w-6xl">
       <div className="page-header">
         <div>
           <p className="section-title">People</p>

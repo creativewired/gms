@@ -18,10 +18,7 @@ export default function EditJobForm({
 
   const handleSave = async () => {
     setLoading(true);
-    await supabase
-      .from("jobs")
-      .update({ problem_description: value })
-      .eq("id", jobId);
+    await supabase.from("jobs").update({ problem_description: value }).eq("id", jobId);
     setLoading(false);
     setEditing(false);
     router.refresh();
@@ -29,12 +26,9 @@ export default function EditJobForm({
 
   if (!editing) {
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <span className="text-slate-700 text-sm">{currentDescription ?? "—"}</span>
-        <button
-          onClick={() => setEditing(true)}
-          className="text-xs text-blue-500 hover:underline"
-        >
+        <button onClick={() => setEditing(true)} className="text-xs text-blue-500 hover:underline shrink-0">
           Edit
         </button>
       </div>
@@ -42,26 +36,19 @@ export default function EditJobForm({
   }
 
   return (
-    <div className="flex items-center gap-2 mt-1">
+    <div className="flex flex-col sm:flex-row gap-2 mt-1">
       <input
         type="text"
         value={value}
-        onChange={(e) => setValue(e.target.value)}
-        className="border border-slate-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 w-64"
+        onChange={e => setValue(e.target.value)}
+        className="input flex-1"
       />
-      <button
-        onClick={handleSave}
-        disabled={loading}
-        className="text-xs bg-slate-900 text-white px-3 py-1 rounded-md hover:bg-slate-700 disabled:opacity-50"
-      >
-        {loading ? "Saving..." : "Save"}
-      </button>
-      <button
-        onClick={() => setEditing(false)}
-        className="text-xs text-slate-400 hover:underline"
-      >
-        Cancel
-      </button>
+      <div className="flex gap-2 shrink-0">
+        <button onClick={handleSave} disabled={loading} className="btn-primary text-xs">
+          {loading ? "Saving..." : "Save"}
+        </button>
+        <button onClick={() => setEditing(false)} className="btn-ghost text-xs">Cancel</button>
+      </div>
     </div>
   );
 }

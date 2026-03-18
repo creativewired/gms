@@ -9,16 +9,11 @@ export default function AddInventoryForm() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
-    part_name: "",
-    sku: "",
-    quantity: "",
-    unit_price: "",
-    low_stock_level: "5",
+    part_name: "", sku: "", quantity: "", unit_price: "", low_stock_level: "5",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,17 +46,15 @@ export default function AddInventoryForm() {
 
   if (!open) {
     return (
-      <button onClick={() => setOpen(true)} className="btn-primary">
-        + Add Part
-      </button>
+      <button onClick={() => setOpen(true)} className="btn-primary">+ Add Part</button>
     );
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
       style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(6px)" }}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-7">
-        <div className="flex items-center justify-between mb-6">
+      <div className="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl shadow-2xl p-6">
+        <div className="flex items-center justify-between mb-5">
           <h3 className="text-base font-semibold text-slate-800">Add Part to Inventory</h3>
           <button onClick={() => setOpen(false)} className="btn-ghost text-xl leading-none">×</button>
         </div>
@@ -76,7 +69,7 @@ export default function AddInventoryForm() {
             <input type="text" name="sku" value={form.sku}
               onChange={handleChange} placeholder="e.g. OF-1234" className="input" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="label">Quantity <span className="text-red-400">*</span></label>
               <input type="number" name="quantity" value={form.quantity}
@@ -93,11 +86,11 @@ export default function AddInventoryForm() {
             <input type="number" name="low_stock_level" value={form.low_stock_level}
               onChange={handleChange} placeholder="5" min="0" className="input" />
           </div>
-          <div className="flex gap-3 pt-2">
-            <button type="submit" disabled={loading} className="btn-primary">
+          <div className="flex gap-3 pt-1">
+            <button type="submit" disabled={loading} className="btn-primary flex-1">
               {loading ? "Saving..." : "Add Part"}
             </button>
-            <button type="button" onClick={() => setOpen(false)} className="btn-ghost">
+            <button type="button" onClick={() => setOpen(false)} className="btn-ghost flex-1">
               Cancel
             </button>
           </div>

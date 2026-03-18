@@ -90,7 +90,6 @@ export default function FleetClient({
   const handleSave = async () => {
     if (!form.company_name) return alert("Company name is required");
     setSaving(true);
-
     const payload = {
       company_name: form.company_name,
       contact_name: form.contact_name || null,
@@ -101,7 +100,6 @@ export default function FleetClient({
       is_active: form.is_active,
       ...(editingId ? { id: editingId } : {}),
     };
-
     const res = await fetch("/api/fleet", {
       method: editingId ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
@@ -109,7 +107,6 @@ export default function FleetClient({
     });
     const data = await res.json();
     setSaving(false);
-
     if (!data.error) {
       setShowForm(false);
       if (editingId) {
@@ -144,53 +141,36 @@ export default function FleetClient({
   const handleAssign = async () => {
     if (!selectedFleet) return;
     setAssigning(true);
-
-    // Get current fleet vehicles
     const current = (fleetVehicles[selectedFleet.id] ?? []).map(v => v.id);
-
-    // Add new ones
     const toAdd = selectedVehicleIds.filter(id => !current.includes(id));
-    // Remove deselected
     const toRemove = current.filter(id => !selectedVehicleIds.includes(id));
-
-    const promises = [
-      ...toAdd.map(vid =>
-        fetch("/api/fleet/assign", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ vehicleId: vid, fleetId: selectedFleet.id }),
-        })
-      ),
-      ...toRemove.map(vid =>
-        fetch("/api/fleet/assign", {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ vehicleId: vid }),
-        })
-      ),
-    ];
-
-    await Promise.all(promises);
+    await Promise.all([
+      ...toAdd.map(vid => fetch("/api/fleet/assign", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vehicleId: vid, fleetId: selectedFleet.id }),
+      })),
+      ...toRemove.map(vid => fetch("/api/fleet/assign", {
+        method: "DELETE", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vehicleId: vid }),
+      })),
+    ]);
     setAssigning(false);
     setShowAssign(false);
     router.refresh();
   };
 
-  const toggleVehicle = (id: number) => {
-    setSelectedVehicleIds(prev =>
-      prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id]
-    );
-  };
+  const toggleVehicle = (id: number) =>
+    setSelectedVehicleIds(prev => prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id]);
 
   const totalVehicles = Object.values(fleetVehicles).reduce((s, v) => s + (v?.length ?? 0), 0);
   const totalRevenue = Object.values(fleetRevenue).reduce((s, v) => s + v, 0);
   const totalJobs = Object.values(fleetJobs).reduce((s, v) => s + v, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { label: "Total Fleets", value: fleets.length, color: "#1d4ed8", border: "#bfdbfe" },
           { label: "Fleet Vehicles", value: totalVehicles, color: "#7c3aed", border: "#ddd6fe" },
@@ -198,8 +178,8 @@ export default function FleetClient({
           { label: "Fleet Revenue", value: `AED ${totalRevenue.toLocaleString("en-AE", { minimumFractionDigits: 0 })}`, color: "#15803d", border: "#bbf7d0" },
         ].map(s => (
           <div key={s.label} className="stat-card" style={{ borderTop: `3px solid ${s.border}` }}>
-            <p className="label">{s.label}</p>
-            <p style={{ fontSize: "1.6rem", fontWeight: 700, color: s.color, letterSpacing: "-0.02em", lineHeight: 1.1, marginTop: "0.3rem" }}>
+            <p className="label text-xs">{s.label}</p>
+            <p style={{ fontSize: "1.4rem", fontWeight: 700, color: s.color, letterSpacing: "-0.02em", lineHeight: 1.1, marginTop: "0.3rem" }}>
               {s.value}
             </p>
           </div>
@@ -212,7 +192,7 @@ export default function FleetClient({
       </div>
 
       {/* Fleet Cards */}
-      <div className="grid grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {fleets.map((fleet, idx) => {
           const vehicles = fleetVehicles[fleet.id] ?? [];
           const revenue = fleetRevenue[fleet.id] ?? 0;
@@ -220,37 +200,35 @@ export default function FleetClient({
           const color = FLEET_COLORS[idx % FLEET_COLORS.length];
 
           return (
-            <div key={fleet.id} className="card p-6"
-              style={{ borderTop: `3px solid ${color}20`, opacity: fleet.is_active ? 1 : 0.6 }}>
+            <div key={fleet.id} className="card p-5"
+              style={{ borderTop: `3px solid ${color}40`, opacity: fleet.is_active ? 1 : 0.6 }}>
 
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-lg"
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-white font-bold text-base shrink-0"
                     style={{ background: color }}>
                     {fleet.company_name.charAt(0)}
                   </div>
-                  <div>
-                    <p className="text-base font-bold text-slate-800">{fleet.company_name}</p>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-slate-800 truncate">{fleet.company_name}</p>
                     {fleet.branches?.name && (
                       <p className="text-xs text-slate-400">{fleet.branches.name}</p>
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="px-2 py-0.5 rounded-full text-xs font-semibold"
-                    style={{
-                      background: fleet.is_active ? "#f0fdf4" : "#f8fafc",
-                      color: fleet.is_active ? "#15803d" : "#94a3b8",
-                    }}>
-                    {fleet.is_active ? "Active" : "Inactive"}
-                  </span>
-                </div>
+                <span className="px-2 py-0.5 rounded-full text-xs font-semibold shrink-0 ml-2"
+                  style={{
+                    background: fleet.is_active ? "#f0fdf4" : "#f8fafc",
+                    color: fleet.is_active ? "#15803d" : "#94a3b8",
+                  }}>
+                  {fleet.is_active ? "Active" : "Inactive"}
+                </span>
               </div>
 
               {/* Contact */}
-              {(fleet.contact_name || fleet.contact_phone) && (
-                <div className="flex items-center gap-4 mb-4 p-3 rounded-xl"
+              {(fleet.contact_name || fleet.contact_phone || fleet.contact_email) && (
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-4 p-3 rounded-xl"
                   style={{ background: "#f8fafc" }}>
                   {fleet.contact_name && (
                     <div>
@@ -265,24 +243,23 @@ export default function FleetClient({
                     </div>
                   )}
                   {fleet.contact_email && (
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-xs text-slate-400">Email</p>
-                      <p className="text-xs font-semibold text-slate-700 truncate max-w-[120px]">{fleet.contact_email}</p>
+                      <p className="text-xs font-semibold text-slate-700 truncate max-w-[160px]">{fleet.contact_email}</p>
                     </div>
                   )}
                 </div>
               )}
 
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-3 mb-4">
+              {/* Mini stats */}
+              <div className="grid grid-cols-3 gap-2 mb-4">
                 {[
                   { label: "Vehicles", value: vehicles.length, color },
                   { label: "Jobs", value: jobs, color: "#64748b" },
                   { label: "Revenue", value: `AED ${revenue.toLocaleString("en-AE", { minimumFractionDigits: 0 })}`, color: "#15803d" },
                 ].map(m => (
-                  <div key={m.label} className="rounded-xl p-3 text-center"
-                    style={{ background: "#f8fafc" }}>
-                    <p className="text-base font-bold truncate" style={{ color: m.color }}>{m.value}</p>
+                  <div key={m.label} className="rounded-xl p-2.5 text-center" style={{ background: "#f8fafc" }}>
+                    <p className="text-sm font-bold truncate" style={{ color: m.color }}>{m.value}</p>
                     <p className="text-xs text-slate-400 mt-0.5">{m.label}</p>
                   </div>
                 ))}
@@ -291,17 +268,17 @@ export default function FleetClient({
               {/* Vehicle plates */}
               {vehicles.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mb-4">
-                  {vehicles.slice(0, 6).map(v => (
+                  {vehicles.slice(0, 5).map(v => (
                     <Link key={v.id} href={`/vehicles/${v.id}`}
                       className="px-2 py-0.5 rounded-lg text-xs font-mono font-bold transition-colors hover:opacity-70"
                       style={{ background: `${color}15`, color }}>
                       {v.plate_number}
                     </Link>
                   ))}
-                  {vehicles.length > 6 && (
+                  {vehicles.length > 5 && (
                     <span className="px-2 py-0.5 rounded-lg text-xs text-slate-400"
                       style={{ background: "#f2f2f7" }}>
-                      +{vehicles.length - 6} more
+                      +{vehicles.length - 5} more
                     </span>
                   )}
                 </div>
@@ -316,12 +293,12 @@ export default function FleetClient({
                   Manage Vehicles
                 </button>
                 <button onClick={() => openEdit(fleet)}
-                  className="px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                  className="px-3 py-2 rounded-xl text-xs font-semibold"
                   style={{ background: "#f2f2f7", color: "#3a3a3c" }}>
                   Edit
                 </button>
                 <button onClick={() => handleDelete(fleet.id)}
-                  className="px-3 py-2 rounded-xl text-xs font-semibold transition-colors"
+                  className="px-3 py-2 rounded-xl text-xs font-semibold"
                   style={{ background: "#fff1f0", color: "#dc2626" }}>
                   Delete
                 </button>
@@ -331,10 +308,10 @@ export default function FleetClient({
         })}
 
         {fleets.length === 0 && (
-          <div className="col-span-2 card p-16 text-center">
-            <div className="w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4"
+          <div className="col-span-1 md:col-span-2 card p-12 text-center">
+            <div className="w-14 h-14 rounded-3xl flex items-center justify-center mx-auto mb-3"
               style={{ background: "#f2f2f7" }}>
-              <svg className="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <svg className="w-7 h-7 text-slate-300" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                 <path d="M5 17H3a2 2 0 01-2-2V9a2 2 0 012-2h1l2-4h10l2 4h1a2 2 0 012 2v6a2 2 0 01-2 2h-2" />
                 <circle cx="7.5" cy="17.5" r="2.5" /><circle cx="16.5" cy="17.5" r="2.5" />
               </svg>
@@ -346,27 +323,24 @@ export default function FleetClient({
 
       {/* Add/Edit Modal */}
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
           style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(6px)" }}>
-          <div className="bg-white rounded-3xl shadow-2xl w-full overflow-y-auto"
-            style={{ maxWidth: "500px", maxHeight: "92vh" }}>
-            <div className="px-7 py-5 flex items-center justify-between"
+          <div className="bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col"
+            style={{ maxHeight: "92vh" }}>
+            <div className="px-6 py-5 flex items-center justify-between shrink-0"
               style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
               <p className="text-base font-semibold text-slate-800">
                 {editingId ? "Edit Fleet" : "Add Fleet"}
               </p>
-              <button onClick={() => setShowForm(false)}
-                className="btn-ghost text-xl leading-none">×</button>
+              <button onClick={() => setShowForm(false)} className="btn-ghost text-xl leading-none">×</button>
             </div>
-
-            <div className="p-7 space-y-4">
+            <div className="overflow-y-auto p-6 space-y-4 flex-1">
               <div>
                 <label className="label">Company Name <span className="text-red-400">*</span></label>
                 <input name="company_name" value={form.company_name} onChange={handleChange}
                   placeholder="e.g. Emirates Transport" className="input" />
               </div>
-
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="label">Contact Person</label>
                   <input name="contact_name" value={form.contact_name} onChange={handleChange}
@@ -378,13 +352,11 @@ export default function FleetClient({
                     placeholder="+971..." className="input" />
                 </div>
               </div>
-
               <div>
                 <label className="label">Email</label>
                 <input type="email" name="contact_email" value={form.contact_email}
                   onChange={handleChange} placeholder="contact@company.com" className="input" />
               </div>
-
               <div>
                 <label className="label">Branch</label>
                 <select name="branch_id" value={form.branch_id} onChange={handleChange} className="input">
@@ -394,16 +366,13 @@ export default function FleetClient({
                   ))}
                 </select>
               </div>
-
               <div>
                 <label className="label">Notes</label>
                 <textarea name="notes" value={form.notes} onChange={handleChange}
                   placeholder="Any notes about this fleet client..."
                   rows={3} className="input resize-none" />
               </div>
-
-              <div className="flex items-center gap-3 p-4 rounded-2xl"
-                style={{ background: "#f8fafc" }}>
+              <div className="flex items-center gap-3 p-4 rounded-2xl" style={{ background: "#f8fafc" }}>
                 <input type="checkbox" name="is_active" id="fleet_active"
                   checked={form.is_active as unknown as boolean}
                   onChange={handleChange}
@@ -412,13 +381,12 @@ export default function FleetClient({
                   Active fleet
                 </label>
               </div>
-
-              <div className="flex items-center gap-3 pt-2">
+              <div className="flex gap-3 pt-1 pb-1">
                 <button onClick={handleSave} disabled={saving}
                   className="btn-primary flex-1 justify-center">
                   {saving ? "Saving..." : editingId ? "Save Changes" : "Add Fleet"}
                 </button>
-                <button onClick={() => setShowForm(false)} className="btn-ghost">Cancel</button>
+                <button onClick={() => setShowForm(false)} className="btn-ghost flex-1">Cancel</button>
               </div>
             </div>
           </div>
@@ -427,26 +395,23 @@ export default function FleetClient({
 
       {/* Assign Vehicles Modal */}
       {showAssign && selectedFleet && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
           style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(6px)" }}>
-          <div className="bg-white rounded-3xl shadow-2xl w-full overflow-y-auto"
-            style={{ maxWidth: "480px", maxHeight: "92vh" }}>
-            <div className="px-7 py-5 flex items-center justify-between"
+          <div className="bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col"
+            style={{ maxHeight: "92vh" }}>
+            <div className="px-6 py-5 flex items-center justify-between shrink-0"
               style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
               <div>
                 <p className="text-base font-semibold text-slate-800">Manage Vehicles</p>
                 <p className="text-xs text-slate-400 mt-0.5">{selectedFleet.company_name}</p>
               </div>
-              <button onClick={() => setShowAssign(false)}
-                className="btn-ghost text-xl leading-none">×</button>
+              <button onClick={() => setShowAssign(false)} className="btn-ghost text-xl leading-none">×</button>
             </div>
-
-            <div className="p-7 space-y-3">
-              <p className="text-xs text-slate-400 mb-4">
+            <div className="overflow-y-auto p-6 space-y-3 flex-1">
+              <p className="text-xs text-slate-400">
                 Select vehicles to assign to this fleet. Deselect to remove.
               </p>
-
-              <div className="space-y-2 max-h-96 overflow-y-auto">
+              <div className="space-y-2">
                 {allVehicles.map(v => {
                   const selected = selectedVehicleIds.includes(v.id);
                   const otherFleet = v.fleet_id && v.fleet_id !== selectedFleet.id;
@@ -472,9 +437,7 @@ export default function FleetClient({
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold font-mono text-slate-800">
-                          {v.plate_number}
-                        </p>
+                        <p className="text-sm font-bold font-mono text-slate-800">{v.plate_number}</p>
                         <p className="text-xs text-slate-400 truncate">
                           {v.make} {v.model} {v.year ? `· ${v.year}` : ""}
                           {v.customers?.name ? ` · ${v.customers.name}` : ""}
@@ -486,20 +449,18 @@ export default function FleetClient({
                     </div>
                   );
                 })}
-
                 {allVehicles.length === 0 && (
                   <p className="text-center text-slate-300 text-sm py-8">
                     No vehicles found. Add vehicles first.
                   </p>
                 )}
               </div>
-
-              <div className="flex items-center gap-3 pt-4">
+              <div className="flex gap-3 pt-2 pb-1">
                 <button onClick={handleAssign} disabled={assigning}
                   className="btn-primary flex-1 justify-center">
                   {assigning ? "Saving..." : `Assign ${selectedVehicleIds.length} Vehicle${selectedVehicleIds.length !== 1 ? "s" : ""}`}
                 </button>
-                <button onClick={() => setShowAssign(false)} className="btn-ghost">Cancel</button>
+                <button onClick={() => setShowAssign(false)} className="btn-ghost flex-1">Cancel</button>
               </div>
             </div>
           </div>

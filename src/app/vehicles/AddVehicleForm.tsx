@@ -27,9 +27,7 @@ export default function AddVehicleForm({ customers }: { customers: Customer[] })
     mileage: "",
   });
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     if (e.target.name === "vin") {
       setVinError("");
@@ -42,15 +40,12 @@ export default function AddVehicleForm({ customers }: { customers: Customer[] })
       setVinError("VIN must be exactly 17 characters");
       return;
     }
-
     setVinLoading(true);
     setVinError("");
     setVinSuccess(false);
-
     try {
       const res = await fetch(`/api/vin-lookup?vin=${form.vin}`);
       const data = await res.json();
-
       if (data.error) {
         setVinError(data.error);
       } else {
@@ -68,7 +63,6 @@ export default function AddVehicleForm({ customers }: { customers: Customer[] })
     } catch {
       setVinError("Lookup failed. Please enter details manually.");
     }
-
     setVinLoading(false);
   };
 
@@ -76,7 +70,6 @@ export default function AddVehicleForm({ customers }: { customers: Customer[] })
     e.preventDefault();
     if (!form.customer_id) return alert("Please select a customer!");
     if (!form.plate_number) return alert("Plate number is required!");
-
     setLoading(true);
     const { error } = await supabase.from("vehicles").insert([{
       customer_id: Number(form.customer_id),
@@ -91,7 +84,6 @@ export default function AddVehicleForm({ customers }: { customers: Customer[] })
       fuel_type: form.fuel_type || null,
       mileage: form.mileage ? Number(form.mileage) : null,
     }]);
-
     setLoading(false);
     if (error) {
       alert("Error: " + error.message);
@@ -116,19 +108,19 @@ export default function AddVehicleForm({ customers }: { customers: Customer[] })
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
       style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(6px)" }}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full overflow-y-auto"
+      <div className="bg-white w-full sm:rounded-2xl shadow-2xl overflow-y-auto rounded-t-2xl"
         style={{ maxWidth: "560px", maxHeight: "92vh" }}>
 
         {/* Header */}
-        <div className="px-7 py-5 flex items-center justify-between"
+        <div className="px-5 sm:px-7 py-4 sm:py-5 flex items-center justify-between"
           style={{ borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
           <h3 className="text-base font-semibold text-slate-800">Add Vehicle</h3>
           <button onClick={() => setOpen(false)} className="btn-ghost text-xl leading-none">×</button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-7 space-y-5">
+        <form onSubmit={handleSubmit} className="p-5 sm:p-7 space-y-5">
 
           {/* VIN Lookup Banner */}
           <div className="rounded-2xl p-4"
@@ -147,7 +139,6 @@ export default function AddVehicleForm({ customers }: { customers: Customer[] })
                 </p>
               </div>
             </div>
-
             <div className="flex gap-2">
               <input
                 type="text"
@@ -156,7 +147,7 @@ export default function AddVehicleForm({ customers }: { customers: Customer[] })
                 onChange={handleChange}
                 placeholder="e.g. 1HGBH41JXMN109186"
                 maxLength={17}
-                className="input flex-1"
+                className="input flex-1 min-w-0"
                 style={{ fontFamily: "monospace", textTransform: "uppercase", letterSpacing: "0.05em" }}
               />
               <button
@@ -174,13 +165,9 @@ export default function AddVehicleForm({ customers }: { customers: Customer[] })
                 ) : "Lookup"}
               </button>
             </div>
-
-            {/* VIN character counter */}
             <div className="flex items-center justify-between mt-2">
               <div>
-                {vinError && (
-                  <p className="text-xs text-red-500">{vinError}</p>
-                )}
+                {vinError && <p className="text-xs text-red-500">{vinError}</p>}
                 {vinSuccess && (
                   <p className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
@@ -190,17 +177,14 @@ export default function AddVehicleForm({ customers }: { customers: Customer[] })
                   </p>
                 )}
               </div>
-              <p className="text-xs text-slate-400 font-mono">
-                {form.vin.length}/17
-              </p>
+              <p className="text-xs text-slate-400 font-mono">{form.vin.length}/17</p>
             </div>
           </div>
 
           {/* Customer */}
           <div>
             <label className="label">Customer <span className="text-red-400">*</span></label>
-            <select name="customer_id" value={form.customer_id}
-              onChange={handleChange} className="input">
+            <select name="customer_id" value={form.customer_id} onChange={handleChange} className="input">
               <option value="">Select customer...</option>
               {customers.map((c) => (
                 <option key={c.id} value={c.id}>{c.name}</option>
@@ -223,7 +207,7 @@ export default function AddVehicleForm({ customers }: { customers: Customer[] })
           </div>
 
           {/* Make / Model / Year */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label className="label">Make</label>
               <input type="text" name="make" value={form.make}
@@ -265,7 +249,7 @@ export default function AddVehicleForm({ customers }: { customers: Customer[] })
                 </span>
               )}
             </p>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="label">Engine</label>
                 <input type="text" name="engine" value={form.engine}
@@ -286,10 +270,10 @@ export default function AddVehicleForm({ customers }: { customers: Customer[] })
 
           {/* Actions */}
           <div className="flex items-center gap-3 pt-1">
-            <button type="submit" disabled={loading} className="btn-primary">
+            <button type="submit" disabled={loading} className="btn-primary flex-1 sm:flex-none">
               {loading ? "Adding..." : "Add Vehicle"}
             </button>
-            <button type="button" onClick={() => setOpen(false)} className="btn-ghost">
+            <button type="button" onClick={() => setOpen(false)} className="btn-ghost flex-1 sm:flex-none">
               Cancel
             </button>
           </div>

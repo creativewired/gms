@@ -32,17 +32,14 @@ export default async function TimeClockPage({
     { data: clocks },
   ] = await Promise.all([mechanicsQuery, jobsQuery, clocksQuery]);
 
-  // Active clocks — clocked in but not out
   const activeClocks = (clocks ?? []).filter((c) => !c.clock_out);
 
-  // Today's completed clocks
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
   const todayClocks = (clocks ?? []).filter(
     (c) => c.clock_out && new Date(c.clock_in) >= todayStart
   );
 
-  // Total hours today per mechanic
   const todayHours: Record<string, number> = {};
   todayClocks.forEach((c) => {
     if (c.duration_minutes) {
@@ -52,7 +49,7 @@ export default async function TimeClockPage({
   });
 
   return (
-    <div className="space-y-8 max-w-6xl">
+    <div className="space-y-6 max-w-6xl">
       <div className="page-header">
         <div>
           <p className="section-title">Workshop</p>
@@ -61,10 +58,10 @@ export default async function TimeClockPage({
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-3">
         {[
           {
-            label: "Currently Clocked In",
+            label: "Clocked In",
             value: activeClocks.length,
             color: "#15803d", border: "#bbf7d0",
           },
@@ -74,18 +71,17 @@ export default async function TimeClockPage({
             color: "#1d4ed8", border: "#bfdbfe",
           },
           {
-            label: "Total Hours Today",
+            label: "Hours Today",
             value: `${(
               Object.values(todayHours).reduce((s, m) => s + m, 0) / 60
             ).toFixed(1)}h`,
             color: "#7c3aed", border: "#ddd6fe",
           },
         ].map((s) => (
-          <div key={s.label} className="stat-card"
-            style={{ borderTop: `3px solid ${s.border}` }}>
-            <p className="label">{s.label}</p>
+          <div key={s.label} className="stat-card" style={{ borderTop: `3px solid ${s.border}` }}>
+            <p className="label text-xs">{s.label}</p>
             <p style={{
-              fontSize: "1.75rem", fontWeight: 700,
+              fontSize: "1.4rem", fontWeight: 700,
               color: s.color, letterSpacing: "-0.03em",
               lineHeight: 1.1, marginTop: "0.375rem",
             }}>
@@ -97,7 +93,7 @@ export default async function TimeClockPage({
 
       <TimeClockBoard
         mechanics={mechanics ?? []}
-jobs={(jobs ?? []) as any}
+        jobs={(jobs ?? []) as any}
         activeClocks={activeClocks}
         recentClocks={clocks ?? []}
         todayHours={todayHours}

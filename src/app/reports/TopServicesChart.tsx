@@ -1,21 +1,15 @@
 "use client";
 
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
+  BarChart, Bar, XAxis, YAxis,
+  CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
 
 type Props = {
   data: { name: string; revenue: number }[];
 };
 
-const COLORS = ["#7c3aed", "#6d28d9", "#5b21b6", "#4c1d95", "#4338ca", "#3730a3"];
+const COLORS = ["#7c3aed","#6d28d9","#5b21b6","#4c1d95","#4338ca","#3730a3"];
 
 export default function TopServicesChart({ data }: Props) {
   if (data.length === 0) {
@@ -27,12 +21,12 @@ export default function TopServicesChart({ data }: Props) {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={220}>
+    <ResponsiveContainer width="100%" height={200}>
       <BarChart
         data={data}
         layout="vertical"
         margin={{ top: 0, right: 10, left: 0, bottom: 0 }}
-        barSize={12}
+        barSize={10}
       >
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" horizontal={false} />
         <XAxis
@@ -48,8 +42,8 @@ export default function TopServicesChart({ data }: Props) {
           tick={{ fontSize: 10, fill: "#8e8e93" }}
           axisLine={false}
           tickLine={false}
-          width={100}
-          tickFormatter={(v) => v.length > 14 ? v.slice(0, 14) + "…" : v}
+          width={90}
+          tickFormatter={(v) => v.length > 12 ? v.slice(0, 12) + "…" : v}
         />
         <Tooltip
           contentStyle={{
@@ -60,7 +54,7 @@ export default function TopServicesChart({ data }: Props) {
           }}
           labelStyle={{ color: "rgba(255,255,255,0.5)", fontSize: "0.7rem" }}
           itemStyle={{ color: "white", fontWeight: 700 }}
-formatter={(value) => [`AED ${Number(value).toLocaleString()}`, "Revenue"]}
+          formatter={(value) => [`AED ${Number(value).toLocaleString()}`, "Revenue"]}
           cursor={{ fill: "rgba(0,0,0,0.03)" }}
         />
         <Bar dataKey="revenue" radius={[0, 6, 6, 0]}>

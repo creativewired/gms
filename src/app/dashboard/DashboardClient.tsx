@@ -38,14 +38,14 @@ export default function DashboardClient({
   const totalStatusJobs = statusData.reduce((s, d) => s + d.value, 0) || 1;
 
   const statusBadge = (status: string) => {
-    if (status === "pending") return <span className="badge-pending">Pending</span>;
+    if (status === "pending")     return <span className="badge-pending">Pending</span>;
     if (status === "in_progress") return <span className="badge-progress">In Progress</span>;
-    if (status === "completed") return <span className="badge-completed">Completed</span>;
+    if (status === "completed")   return <span className="badge-completed">Completed</span>;
     return <span className="badge-draft">{status}</span>;
   };
 
   return (
-    <div className="space-y-5 max-w-7xl">
+    <div className="space-y-4 max-w-7xl">
 
       {/* Page header */}
       <div>
@@ -53,11 +53,11 @@ export default function DashboardClient({
         <h1 className="page-title">Dashboard</h1>
       </div>
 
-      {/* ── KPI Row ─────────────────────────────────────────── */}
+      {/* ── KPI Row ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           {
-            label: "This Month Revenue",
+            label: "This Month",
             value: `AED ${stats.monthRevenue.toLocaleString("en-AE", { minimumFractionDigits: 0 })}`,
             sub: stats.revenueGrowth !== 0
               ? `${stats.revenueGrowth > 0 ? "+" : ""}${stats.revenueGrowth}% vs last month`
@@ -67,7 +67,7 @@ export default function DashboardClient({
             href: "/reports",
           },
           {
-            label: "This Week Revenue",
+            label: "This Week",
             value: `AED ${stats.weekRevenue.toLocaleString("en-AE", { minimumFractionDigits: 0 })}`,
             sub: `${stats.monthJobs} jobs this month`,
             color: "#1d4ed8", border: "#bfdbfe",
@@ -83,9 +83,9 @@ export default function DashboardClient({
             href: "/kanban",
           },
           {
-            label: "Total Customers",
+            label: "Customers",
             value: stats.totalCustomers,
-            sub: `${stats.totalVehicles} vehicles registered`,
+            sub: `${stats.totalVehicles} vehicles`,
             color: "#15803d", border: "#bbf7d0",
             trend: "up",
             href: "/customers",
@@ -94,9 +94,9 @@ export default function DashboardClient({
           <Link key={kpi.label} href={kpi.href}
             className="stat-card block transition-all hover:shadow-md"
             style={{ borderTop: `3px solid ${kpi.border}` }}>
-            <p className="label text-xs">{kpi.label}</p>
+            <p className="label text-xs truncate">{kpi.label}</p>
             <p style={{
-              fontSize: "1.3rem", fontWeight: 700,
+              fontSize: "1.15rem", fontWeight: 700,
               color: kpi.color, letterSpacing: "-0.02em",
               lineHeight: 1.1, marginTop: "0.3rem",
             }}>
@@ -104,42 +104,42 @@ export default function DashboardClient({
             </p>
             <div className="flex items-center gap-1 mt-1.5">
               {kpi.trend === "up" && (
-                <svg className="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                <svg className="w-3 h-3 text-emerald-500 shrink-0" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                   <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
                 </svg>
               )}
               {kpi.trend === "down" && (
-                <svg className="w-3 h-3 text-red-400" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                <svg className="w-3 h-3 text-red-400 shrink-0" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                   <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
                 </svg>
               )}
-              <p className="text-xs text-slate-400">{kpi.sub}</p>
+              <p className="text-xs text-slate-400 truncate">{kpi.sub}</p>
             </div>
           </Link>
         ))}
       </div>
 
-      {/* ── Row 2: Revenue Chart + Status Breakdown ──────── */}
+      {/* ── Row 2: Revenue Chart + Status Breakdown ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
         {/* Revenue Bar Chart */}
         <div className="md:col-span-2 card p-5">
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Revenue Trend</p>
-              <p className="text-base font-bold text-slate-800 mt-0.5">Last 6 Months</p>
+              <p className="text-sm font-bold text-slate-800 mt-0.5">Last 6 Months</p>
             </div>
-            <Link href="/reports" className="text-xs text-slate-400 hover:text-slate-700 transition-colors">
+            <Link href="/reports" className="text-xs text-slate-400 hover:text-slate-700 transition-colors shrink-0 ml-3">
               Full Report →
             </Link>
           </div>
-          <div className="flex items-end gap-2 h-32">
+          <div className="flex items-end gap-1.5 h-28">
             {monthlyData.map((m, i) => {
               const height = maxRevenue > 0 ? Math.max((m.revenue / maxRevenue) * 100, 2) : 2;
               const isLast = i === monthlyData.length - 1;
               return (
-                <div key={m.month} className="flex-1 flex flex-col items-center gap-1.5">
-                  <p className="text-xs font-bold text-slate-500">
+                <div key={m.month} className="flex-1 flex flex-col items-center gap-1">
+                  <p className="text-xs font-bold text-slate-500 truncate w-full text-center" style={{ fontSize: "10px" }}>
                     {m.revenue > 0 ? `${Math.round(m.revenue / 1000)}k` : ""}
                   </p>
                   <div className="w-full rounded-xl transition-all relative group"
@@ -157,7 +157,7 @@ export default function DashboardClient({
                       </div>
                     </div>
                   </div>
-                  <p className="text-xs text-slate-400">{m.month}</p>
+                  <p className="text-slate-400 truncate w-full text-center" style={{ fontSize: "10px" }}>{m.month}</p>
                 </div>
               );
             })}
@@ -167,7 +167,7 @@ export default function DashboardClient({
         {/* Status Breakdown */}
         <div className="card p-5">
           <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Job Status</p>
-          <p className="text-base font-bold text-slate-800 mb-4">Breakdown</p>
+          <p className="text-sm font-bold text-slate-800 mb-4">Breakdown</p>
           <div className="flex rounded-xl overflow-hidden h-3 mb-4 gap-0.5">
             {statusData.filter(s => s.value > 0).map(s => (
               <div key={s.label}
@@ -178,7 +178,7 @@ export default function DashboardClient({
             {statusData.map(s => (
               <div key={s.label} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full" style={{ background: s.color }} />
+                  <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: s.color }} />
                   <p className="text-sm text-slate-600">{s.label}</p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -199,7 +199,7 @@ export default function DashboardClient({
         </div>
       </div>
 
-      {/* ── Row 3: Recent Jobs + Sidebar ──────────────────── */}
+      {/* ── Row 3: Recent Jobs + Sidebar ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
         {/* Recent Jobs */}
@@ -211,18 +211,24 @@ export default function DashboardClient({
               View All →
             </Link>
           </div>
+
           {/* Mobile card list */}
-          <div className="md:hidden divide-y divide-slate-100">
+          <div className="md:hidden divide-y divide-slate-50">
             {recentJobs.map(j => (
-              <Link key={j.id} href={`/jobs/${j.id}`} className="flex items-center justify-between px-4 py-3 hover:bg-slate-50">
-                <div>
+              <Link key={j.id} href={`/jobs/${j.id}`}
+                className="flex items-center justify-between px-4 py-3 hover:bg-slate-50/60 transition-colors">
+                <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-slate-800">{j.vehicles?.plate_number ?? "—"}</p>
                   <p className="text-xs text-slate-400">{j.vehicles?.make} {j.vehicles?.model}</p>
                   <div className="mt-1">{statusBadge(j.status)}</div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-bold text-slate-800">AED {Number(j.total_amount).toLocaleString("en-AE", { minimumFractionDigits: 0 })}</p>
-                  <p className="text-xs text-slate-400">{new Date(j.created_at).toLocaleDateString("en-AE", { month: "short", day: "numeric" })}</p>
+                <div className="text-right shrink-0 ml-3">
+                  <p className="text-sm font-bold text-slate-800">
+                    AED {Number(j.total_amount).toLocaleString("en-AE", { minimumFractionDigits: 0 })}
+                  </p>
+                  <p className="text-xs text-slate-400">
+                    {new Date(j.created_at).toLocaleDateString("en-AE", { month: "short", day: "numeric" })}
+                  </p>
                 </div>
               </Link>
             ))}
@@ -230,6 +236,7 @@ export default function DashboardClient({
               <p className="text-center py-8 text-slate-300 text-sm">No jobs yet.</p>
             )}
           </div>
+
           {/* Desktop table */}
           <table className="hidden md:table min-w-full">
             <tbody>
@@ -263,7 +270,7 @@ export default function DashboardClient({
           </table>
         </div>
 
-        {/* Right sidebar */}
+        {/* Right sidebar — stacks below on mobile */}
         <div className="space-y-4">
 
           {/* Upcoming Appointments */}
@@ -277,8 +284,10 @@ export default function DashboardClient({
             {upcomingAppointments.length > 0 ? (
               <div className="space-y-2">
                 {upcomingAppointments.map(a => (
-                  <div key={a.id} className="flex items-start gap-3 p-2.5 rounded-xl" style={{ background: "#f8fafc" }}>
-                    <div className="w-8 h-8 rounded-xl flex flex-col items-center justify-center shrink-0" style={{ background: "#eff6ff" }}>
+                  <div key={a.id} className="flex items-start gap-3 p-2.5 rounded-xl"
+                    style={{ background: "#f8fafc" }}>
+                    <div className="w-8 h-8 rounded-xl flex flex-col items-center justify-center shrink-0"
+                      style={{ background: "#eff6ff" }}>
                       <p className="text-xs font-bold text-blue-600 leading-none">
                         {new Date(a.appointment_date + "T00:00:00").getDate()}
                       </p>
@@ -302,19 +311,20 @@ export default function DashboardClient({
           {lowStockItems.length > 0 && (
             <div className="card p-5" style={{ border: "1px solid #fecaca" }}>
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-5 h-5 rounded-lg flex items-center justify-center" style={{ background: "#fff1f0" }}>
+                <div className="w-5 h-5 rounded-lg flex items-center justify-center shrink-0"
+                  style={{ background: "#fff1f0" }}>
                   <svg className="w-3 h-3 text-red-400" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                     <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                     <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
                   </svg>
                 </div>
                 <p className="text-sm font-semibold text-red-600">Low Stock</p>
-                <Link href="/inventory" className="ml-auto text-xs text-slate-400 hover:text-slate-700 transition-colors">View →</Link>
+                <Link href="/inventory" className="ml-auto text-xs text-slate-400 hover:text-slate-700">View →</Link>
               </div>
               <div className="space-y-2">
                 {lowStockItems.map(item => (
                   <div key={item.id} className="flex items-center justify-between">
-                    <p className="text-xs text-slate-600 truncate max-w-[65%]">{item.part_name}</p>
+                    <p className="text-xs text-slate-600 truncate max-w-[70%]">{item.part_name}</p>
                     <span className="text-xs font-bold text-red-500">{item.quantity} left</span>
                   </div>
                 ))}
@@ -332,14 +342,14 @@ export default function DashboardClient({
                   return (
                     <div key={name}>
                       <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-2">
-                          <div className="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
                             style={{ background: MECHANIC_COLORS[i % MECHANIC_COLORS.length] }}>
                             {name.charAt(0)}
                           </div>
-                          <p className="text-xs font-medium text-slate-700 truncate max-w-[100px]">{name}</p>
+                          <p className="text-xs font-medium text-slate-700 truncate">{name}</p>
                         </div>
-                        <p className="text-xs font-bold text-slate-800">
+                        <p className="text-xs font-bold text-slate-800 shrink-0 ml-2">
                           AED {data.revenue.toLocaleString("en-AE", { minimumFractionDigits: 0 })}
                         </p>
                       </div>
@@ -359,8 +369,8 @@ export default function DashboardClient({
         </div>
       </div>
 
-      {/* ── Quick Actions ─────────────────────────────────── */}
-      <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
+      {/* ── Quick Actions ── */}
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
         {[
           { label: "New Job",      href: "/jobs",        icon: "🔧", color: "#1d4ed8", bg: "#eff6ff" },
           { label: "Add Customer", href: "/customers",   icon: "👤", color: "#7c3aed", bg: "#f5f3ff" },
@@ -369,12 +379,12 @@ export default function DashboardClient({
           { label: "Inventory",    href: "/inventory",   icon: "📦", color: "#15803d", bg: "#f0fdf4" },
         ].map(a => (
           <Link key={a.label} href={a.href}
-            className="card p-3 md:p-4 flex flex-col items-center gap-2 text-center transition-all hover:shadow-md">
-            <div className="w-9 h-9 md:w-10 md:h-10 rounded-2xl flex items-center justify-center text-lg md:text-xl"
+            className="card p-3 flex flex-col items-center gap-2 text-center transition-all hover:shadow-md">
+            <div className="w-9 h-9 rounded-2xl flex items-center justify-center text-lg"
               style={{ background: a.bg }}>
               {a.icon}
             </div>
-            <p className="text-xs font-semibold text-slate-700">{a.label}</p>
+            <p className="text-xs font-semibold text-slate-700 leading-tight">{a.label}</p>
           </Link>
         ))}
       </div>

@@ -12,24 +12,14 @@ export default async function KanbanPage({
   let query = supabase
     .from("jobs")
     .select(`
-      id,
-      status,
-      total_amount,
-      created_at,
-      mechanic_name,
-      vehicle_id,
-      vehicles (
-        plate_number,
-        make,
-        model,
-        customers ( name )
-      )
+      id, status, total_amount, created_at, mechanic_name, vehicle_id,
+      vehicles ( plate_number, make, model, customers ( name ) )
     `)
     .order("created_at", { ascending: false });
 
   if (branchId) query = query.eq("branch_id", branchId);
 
-  const { data: jobs, error } = await query;
+  const { data: jobs } = await query;
 
   const { data: branches } = await supabase
     .from("branches")
@@ -37,7 +27,6 @@ export default async function KanbanPage({
     .eq("is_active", true)
     .order("name");
 
-  // Flatten the nested customer name onto each job
   const flatJobs = (jobs ?? []).map((j: any) => ({
     ...j,
     customers: j.vehicles?.customers ?? null,
